@@ -112,6 +112,9 @@ class TweetManager:
         if hasattr(tweetCriteria, 'until'):
             urlGetData += ' until:' + tweetCriteria.until
 
+        if hasattr(tweetCriteria, 'lang'):
+            url += '&l=' + tweetCriteria.lang
+
         if hasattr(tweetCriteria, 'topTweets'):
             if tweetCriteria.topTweets:
                 url = "https://twitter.com/i/search/timeline?q=%s&src=typd&max_position=%s"
