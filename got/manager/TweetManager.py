@@ -55,14 +55,20 @@ class TweetManager:
                     "data-tweet-stat-count").replace(",", ""))
                 favorites = int(tweetPQ("span.ProfileTweet-action--favorite span.ProfileTweet-actionCount").attr(
                     "data-tweet-stat-count").replace(",", ""))
+                reply = int(tweetPQ("span.ProfileTweet-action--reply span.ProfileTweet-actionCount").attr(
+                    "data-tweet-stat-count").replace(",", ""))
                 dateSec = int(tweetPQ("small.time span.js-short-timestamp").attr("data-time"))
                 id = tweetPQ.attr("data-tweet-id")
                 permalink = tweetPQ.attr("data-permalink-path")
 
                 geo = ''
                 geoSpan = tweetPQ('span.Tweet-geo')
+
                 if len(geoSpan) > 0:
                     geo = geoSpan.attr('title')
+
+                if txt.endswith('"') or txt.endswith('\\'):
+                    txt += " "
 
                 tweet.id = id
                 tweet.permalink = 'https://twitter.com' + permalink
@@ -74,6 +80,7 @@ class TweetManager:
                 tweet.mentions = " ".join(re.compile('(@\\w*)').findall(tweet.text))
                 tweet.hashtags = " ".join(re.compile('(#\\w*)').findall(tweet.text))
                 tweet.geo = geo
+                tweet.reply = reply
 
                 results.append(tweet)
                 resultsAux.append(tweet)
@@ -82,7 +89,7 @@ class TweetManager:
                     receiveBuffer(resultsAux)
                     resultsAux = []
 
-                if tweetCriteria.maxTweets > 0 and len(results) >= tweetCriteria.maxTweets:
+                if 0 < tweetCriteria.maxTweets <= len(results):
                     active = False
                     break
 
@@ -142,8 +149,8 @@ class TweetManager:
             response = opener.open(url)
             jsonResponse = response.read()
         except:
-            print "Twitter weird response. Try to see on browser: https://twitter.com/search?q=%s&src=typd" % urllib.quote(
-                urlGetData)
+            print "Twitter weird response. Try to see on browser: https://twitter.com/search?q=%s&src=typd" % urllib.quote(urlGetData)
+            print("Unexpected error:", sys.exc_info()[0])
             sys.exit()
             return
 
